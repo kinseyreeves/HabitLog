@@ -74,7 +74,7 @@ class FirstScreenState extends State {
             ),
           ]),
       appBar: AppBar(
-        title: Text('Habits'),
+        title: Text('Habit Log'),
       ),
       body: tabs[currentTabIndex],
     );

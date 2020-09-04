@@ -12,7 +12,7 @@ class StatsScreen extends StatelessWidget {
     print("hello from business");
     return Scaffold(
       body: Container(
-        child: Text("hello from business"),
+        child: Text("Statistics Page"),
       ),
     );
   }

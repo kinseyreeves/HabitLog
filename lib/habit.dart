@@ -1,6 +1,5 @@
 class Habit {
 
-
   String _name;
   bool _repeating;
   List<bool> _repeats;
@@ -14,7 +13,10 @@ class Habit {
     _completed = 0;
   }
 
-
+  bool habitRunsToday(){
+    int dayIndex = new DateTime.now().weekday-1;
+    return _repeats[dayIndex];
+  }
 
   //getters and setters
 

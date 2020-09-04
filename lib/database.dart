@@ -6,8 +6,8 @@ class Database {
 
   List<Habit> habits = new List<Habit>();
 
-  factory Database() {
 
+  factory Database() {
     return _database;
   }
 
@@ -16,8 +16,12 @@ class Database {
       _database.first = false;
       print("happens once");
       habits.add(new Habit("Workout", true, [true, true, true, true, true, true, true], 10, 4));
+      habits.add(new Habit("Walk Dog", true, [true, false, true, false, true, false, true], 10, 4));
+      var date = new DateTime.now();
+      print("${date.weekday}");
     }
   }
+
 
   Database._internal();
 
@@ -26,7 +30,7 @@ class Database {
   }
 
   List<Habit> getTodaysHabits(){
-    
+
   }
 
   void addHabit(Habit habit) {
