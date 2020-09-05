@@ -1,6 +1,6 @@
-# flutter_app
+# Habit Log
 
-A new Flutter application.
+An simple Flutter application used for tracking daily habits
 
 ## Getting Started
 
