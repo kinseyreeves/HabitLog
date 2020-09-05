@@ -4,6 +4,9 @@ import 'stats_screen.dart';
 import 'add_habit.dart';
 import 'habit.dart';
 import 'database.dart';
+import 'package:table_calendar/table_calendar.dart';
+import 'calendar_screen.dart';
+
 
 void main() {
   print("Start");
@@ -39,17 +42,20 @@ class FirstScreenState extends State {
   int currentTabIndex = 0;
   HabitScreen habitScreen;
   StatsScreen statsScreen;
-
+  CalendarScreen calendarScreen;
   List<Widget> tabs;
 
   FirstScreenState() {
-    this.habitScreen = new HabitScreen(Colors.red);
-    this.statsScreen = new StatsScreen(Colors.red);
+    this.habitScreen = new HabitScreen();
+    this.statsScreen = new StatsScreen();
+    this.calendarScreen = new CalendarScreen();
     tabs = [
       this.getHabitScreen(),
       this.getBusinesScreen(),
+      this.getCalendarScreen(),
     ];
   }
+
   onTapped(int index) {
     setState(() {
       currentTabIndex = index;
@@ -72,12 +78,20 @@ class FirstScreenState extends State {
               icon: Icon(Icons.business),
               title: Text('Statistics'),
             ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_today),
+              title: Text('Calendar'),
+            ),
           ]),
       appBar: AppBar(
         title: Text('Habit Log'),
       ),
       body: tabs[currentTabIndex],
     );
+  }
+
+  CalendarScreen getCalendarScreen(){
+    return this.calendarScreen;
   }
 
   HabitScreen getHabitScreen() {

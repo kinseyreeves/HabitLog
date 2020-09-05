@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
 class StatsScreen extends StatelessWidget {
-  Color color;
 
-  StatsScreen(Color color) {
-    this.color = color;
+  StatsScreen() {
   }
 
   @override

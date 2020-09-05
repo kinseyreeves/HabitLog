@@ -4,24 +4,22 @@ import 'database.dart';
 import 'package:weekday_selector/weekday_selector.dart';
 
 class HabitScreen extends StatefulWidget {
-  final Color color;
   HabitScreenState habitScreenState;
 
-  HabitScreen(this.color) {
-    this.habitScreenState = new HabitScreenState(Colors.red);
+  HabitScreen() {
+    this.habitScreenState = new HabitScreenState();
   }
 
   @override
-  HabitScreenState createState() => HabitScreenState(color);
+  HabitScreenState createState() => HabitScreenState();
 }
 
 class HabitScreenState extends State {
-  final Color color;
 
   Database database;
   List<Habit> habits;
 
-  HabitScreenState(this.color) {
+  HabitScreenState() {
     database = Database();
     habits = Database().getHabits();
   }
@@ -72,7 +70,6 @@ class HabitScreenState extends State {
      **/
     Habit habit = this.habits[index];
 
-
     return new Card(
         child: Padding(
       padding: const EdgeInsets.all(10.0),
@@ -96,6 +93,8 @@ class HabitScreenState extends State {
             children: [
               _buildCircle(context, true),
               _buildCircle(context, false),
+              _buildCircle(context, false),
+              _buildCircle(context, false),
               _buildCircle(context, false)
             ],
           ),
@@ -113,9 +112,6 @@ class HabitScreenState extends State {
         ],
       ),
     )
-//            ListTile(
-//              title:Text(this.habits[index].name),
-//            )
         );
   }
 
@@ -123,8 +119,8 @@ class HabitScreenState extends State {
     return Container(
       padding: EdgeInsets.all(2.0),
       child: SizedBox(
-        width: 20,
-        height: 20,
+        width: 15,
+        height: 15,
         child: CustomPaint(
           painter: CirclePainter(completed),
         ),
