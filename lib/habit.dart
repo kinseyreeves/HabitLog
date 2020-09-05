@@ -1,8 +1,6 @@
 import 'database.dart';
 
-
 class Habit {
-
   String _name;
   bool _repeating;
   List<bool> _repeats;
@@ -18,21 +16,21 @@ class Habit {
     database = Database();
 
     //create forward map of datetimes
-    int weeklyTrue = _repeats.where((item) => item==true).length;
+    int weeklyTrue = _repeats.where((item) => item == true).length;
     int i = 0;
-    while (i < _goal){
+    while (i < _goal) {
       var today = DateTime.now();
-      i+=1;
+      i += 1;
       //Todo, forward through all dates where habit occurs marking it in habitDates
     }
   }
 
-  bool habitRunsToday(){
-    int dayIndex = new DateTime.now().weekday-1;
+  bool habitRunsToday() {
+    int dayIndex = new DateTime.now().weekday - 1;
     return _repeats[dayIndex];
   }
 
-  void completeHabit(){
+  void completeHabit() {
     String date = database.getDateString();
   }
 

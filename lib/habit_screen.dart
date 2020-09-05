@@ -15,7 +15,6 @@ class HabitScreen extends StatefulWidget {
 }
 
 class HabitScreenState extends State {
-
   Database database;
   List<Habit> habits;
 
@@ -111,8 +110,7 @@ class HabitScreenState extends State {
           )
         ],
       ),
-    )
-        );
+    ));
   }
 
   Widget _buildCircle(BuildContext context, bool completed) {
@@ -145,13 +143,13 @@ class CirclePainter extends CustomPainter {
   final _paint = Paint()
     ..color = Colors.black12
     ..strokeWidth = 2
-  // Use [PaintingStyle.fill] if you want the circle to be filled.
+    // Use [PaintingStyle.fill] if you want the circle to be filled.
 
     ..style = PaintingStyle.stroke;
 
-  CirclePainter(bool completed){
+  CirclePainter(bool completed) {
     this.completed = completed;
-    if(completed){
+    if (completed) {
       _paint.style = PaintingStyle.fill;
     }
   }

@@ -7,7 +7,6 @@ import 'database.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'calendar_screen.dart';
 
-
 void main() {
   print("Start");
   FirstScreen fs = new FirstScreen();
@@ -90,7 +89,7 @@ class FirstScreenState extends State {
     );
   }
 
-  CalendarScreen getCalendarScreen(){
+  CalendarScreen getCalendarScreen() {
     return this.calendarScreen;
   }
 

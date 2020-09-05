@@ -6,22 +6,22 @@ class Database {
 
   List<Habit> habits = new List<Habit>();
 
-
   factory Database() {
     return _database;
   }
 
-  void setupHabits(){
+  void setupHabits() {
     if (_database.first) {
       _database.first = false;
       print("happens once");
-      habits.add(new Habit("Workout", true, [true, true, true, true, true, true, true], 10, 4));
-      habits.add(new Habit("Walk Dog", true, [true, false, true, false, true, false, true], 10, 4));
+      habits.add(new Habit(
+          "Workout", true, [true, true, true, true, true, true, true], 10, 4));
+      habits.add(new Habit("Walk Dog", true,
+          [true, false, true, false, true, false, true], 10, 4));
       var date = new DateTime.now();
       print("${date.weekday}");
     }
   }
-
 
   Database._internal();
 
@@ -29,19 +29,15 @@ class Database {
     return this.habits;
   }
 
-  List<Habit> getTodaysHabits(){
-
-  }
+  List<Habit> getTodaysHabits() {}
 
   void addHabit(Habit habit) {
     habits.add(habit);
   }
 
-  String getDateString(){
+  String getDateString() {
     return DateTime.now().toString();
   }
-
-
 
   static Database get database => _database;
 }

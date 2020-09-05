@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
 class StatsScreen extends StatelessWidget {
-
-  StatsScreen() {
-  }
+  StatsScreen() {}
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-
 class CalendarScreen extends StatefulWidget {
   CalendarScreen({Key key, this.title}) : super(key: key);
 
@@ -11,7 +10,8 @@ class CalendarScreen extends StatefulWidget {
   _CalendarScreenState createState() => _CalendarScreenState();
 }
 
-class _CalendarScreenState extends State<CalendarScreen> with TickerProviderStateMixin {
+class _CalendarScreenState extends State<CalendarScreen>
+    with TickerProviderStateMixin {
   Map<DateTime, List> _events;
   List _selectedEvents;
   AnimationController _animationController;
@@ -33,15 +33,9 @@ class _CalendarScreenState extends State<CalendarScreen> with TickerProviderStat
   Widget build(BuildContext context) {
     return TableCalendar(
       calendarController: _calendarController,
-
     );
   }
 
-
-
-
-  // More advanced TableCalendar configuration (using Builders & Styles)
-
-
+// More advanced TableCalendar configuration (using Builders & Styles)
 
 }
