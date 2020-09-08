@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'habit.dart';
 import 'database.dart';
+import 'progress_row.dart';
 import 'package:weekday_selector/weekday_selector.dart';
 
 class HabitScreen extends StatefulWidget {
@@ -87,16 +88,7 @@ class HabitScreenState extends State {
               ],
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildCircle(context, true),
-              _buildCircle(context, false),
-              _buildCircle(context, false),
-              _buildCircle(context, false),
-              _buildCircle(context, false)
-            ],
-          ),
+          ProgressRow(habit),
           Container(
             child: new Checkbox(
                 value: true,

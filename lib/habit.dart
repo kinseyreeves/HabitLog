@@ -1,13 +1,20 @@
+import 'dart:collection';
+
 import 'database.dart';
+import 'package:sortedmap/sortedmap.dart';
+
 
 class Habit {
+  ///Habit Class containing all information for habits
+  ///
   String _name;
   bool _repeating;
   List<bool> _repeats;
   int _goal;
   double _priority;
   int _completed;
-  Map habitDates = new Map();
+//  Map completedHabitDates = new LinkedHashMap<String, bool>();
+  SortedMap completedHabitDates = new SortedMap<DateTime, bool>();
   Database database;
 
   Habit(
@@ -15,23 +22,62 @@ class Habit {
     _completed = 0;
     database = Database();
 
-    //create forward map of datetimes
-    int weeklyTrue = _repeats.where((item) => item == true).length;
+    int weeklyTrue = _repeats.where((item)  => item == true).length;
+    print(weeklyTrue);
+    var today = DateTime.now();
     int i = 0;
     while (i < _goal) {
-      var today = DateTime.now();
-      i += 1;
-      //Todo, forward through all dates where habit occurs marking it in habitDates
+      if(_repeats[today.weekday-1]){
+        String dayString = database.getDateString(today);
+        completedHabitDates[today]=false;
+        i += 1;
+      }
+      DateTime tomorrow = DateTime(today.year, today.month, today.day+1);
+      today=tomorrow;
     }
+    print(this.name);
+    print("Checking map");
+    print(completedHabitDates);
+    //print(completedHabitDates[]);
   }
 
+
+
   bool habitRunsToday() {
+    /// Whether or not the habit runs today
+    ///
     int dayIndex = new DateTime.now().weekday - 1;
     return _repeats[dayIndex];
   }
 
-  void completeHabit() {
-    String date = database.getDateString();
+  List getPreviousDates(DateTime dt){
+    ///
+    /// Gets the previous dates from a datetime contained in the habit
+    List list = new List<bool>();
+    print(this.completedHabitDates);
+    if(this.completedHabitDates.containsKey(dt)){
+      DateTime key = this.completedHabitDates.lastKeyBefore(dt);
+      list.add(this.completedHabitDates[key]);
+      int i = 0;
+      while (i<5 && key!=null){
+        key = this.completedHabitDates.lastKeyBefore(key);
+        if(key!=null){
+          list.add(this.completedHabitDates[key]);
+        }
+        i+=1;
+        print(key);
+      }
+    }
+
+    return list;
+  }
+
+  void completeHabit(DateTime dt) {
+    /// Completes a habit on a specific date
+    ///
+    if(completedHabitDates.containsKey(dt)){
+      completedHabitDates[dt] = true;
+    }
   }
 
   //getters and setters
