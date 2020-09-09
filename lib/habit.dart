@@ -14,7 +14,7 @@ class Habit {
   double _priority;
   int _completed;
 //  Map completedHabitDates = new LinkedHashMap<String, bool>();
-  SortedMap completedHabitDates = new SortedMap<DateTime, bool>();
+  SortedMap completedHabitDates = new SortedMap<DateTime, bool>(Ordering.byKey());
   Database database;
 
   Habit(
@@ -54,18 +54,17 @@ class Habit {
     ///
     /// Gets the previous dates from a datetime contained in the habit
     List list = new List<bool>();
-    print(this.completedHabitDates);
+
     if(this.completedHabitDates.containsKey(dt)){
       DateTime key = this.completedHabitDates.lastKeyBefore(dt);
       list.add(this.completedHabitDates[key]);
       int i = 0;
-      while (i<5 && key!=null){
+      while (i<10 && key!=null){
         key = this.completedHabitDates.lastKeyBefore(key);
         if(key!=null){
           list.add(this.completedHabitDates[key]);
         }
         i+=1;
-        print(key);
       }
     }
 

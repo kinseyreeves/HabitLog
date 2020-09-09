@@ -19,25 +19,40 @@ class Database {
 
       habits.add(workout);
 
-      habits.add(new Habit("Walk Dog", true,
-          [true, false, true, false, true, false, true], 5, 4));
+//      habits.add(new Habit("Walk Dog", true,
+//          [true, false, true, false, true, false, true], 5, 4));
 
       var date = new DateTime.now();
       print("${date.weekday}");
     }
-    print("done");
-    DateTime dt1 = DateTime(2020,9,4);
-    DateTime dt2 = DateTime(2020,9,5);
-    DateTime dt3 = DateTime(2020,9,6);
+    print("adding new habits");
+    DateTime dt1 = DateTime(2020,9,1);
+    DateTime dt2 = DateTime(2020,9,2);
+    DateTime dt3 = DateTime(2020,9,3);
+    DateTime dt4 = DateTime(2020,9,4);
+    DateTime dt5 = DateTime(2020,9,5);
+    DateTime dt6 = DateTime(2020,9,6);
+    DateTime dt7 = DateTime(2020,9,7);
+    DateTime dt8 = DateTime(2020,9,8);
 
     workout.completedHabitDates[dt1] = true;
     workout.completedHabitDates[dt2] = true;
     workout.completedHabitDates[dt3] = true;
-    workout.completedHabitDates[dt3] = true;
+    workout.completedHabitDates[dt4] = false;
+    workout.completedHabitDates[dt5] = true;
+    workout.completedHabitDates[dt6] = true;
+    workout.completedHabitDates[dt7] = false;
+    workout.completedHabitDates[dt8] = true;
     workout.completedHabitDates[getToday()] = true;
+    //workout.completedHabitDates[getToday()] = true;
 
-    print("done2");
+    print("completed habits: ");
+    print(workout.completedHabitDates);
+    print("today:");
+    print(getToday());
+    print("previous habits:");
     print(workout.getPreviousDates(getToday()));
+    print("done");
   }
 
   Database._internal();

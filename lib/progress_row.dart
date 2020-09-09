@@ -22,16 +22,30 @@ class _ProgressRow extends State{
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _buildCircle(context, true),
-        _buildCircle(context, false),
-        _buildCircle(context, false),
-        _buildCircle(context, false),
-        _buildCircle(context, false)
+        ..._buildRow(context, habit.getPreviousDates(Database().getToday())),
       ],
     );
   }
 
-  Widget _buildCircle(BuildContext context, bool completed){
+  List<Widget> _buildRow(BuildContext context, List previousDates){
+    print("building row");
+    List densities = List<double>();
+    List circles = List<Widget>();
+    print(previousDates);
+    double density = 0.0;
+    for(var i = 0; i < previousDates.length; i++){
+      if(previousDates[i]){
+        density+=0.1;
+      }else{
+        density*=0;
+      }
+      circles.add(_buildCircle(context, previousDates[i], density));
+    }
+    return circles;
+
+  }
+
+  Widget _buildCircle(BuildContext context, bool completed, double density){
     return Container(
       padding: EdgeInsets.all(2.0),
       child: SizedBox(
