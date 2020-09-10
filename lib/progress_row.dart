@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'habit.dart';
 import 'database.dart';
-
+import 'dart:math';
 
 class ProgressRow extends StatefulWidget {
   Habit habit;
@@ -14,6 +14,7 @@ class ProgressRow extends StatefulWidget {
 
 class _ProgressRow extends State{
   Habit habit;
+  final int rowLen = 7;
 
   _ProgressRow(this.habit);
 
@@ -29,18 +30,25 @@ class _ProgressRow extends State{
 
   List<Widget> _buildRow(BuildContext context, List previousDates){
     print("building row");
-    List densities = List<double>();
     List circles = List<Widget>();
     print(previousDates);
-    double density = 0.0;
-    for(var i = 0; i < previousDates.length; i++){
-      if(previousDates[i]){
-        density+=0.1;
-      }else{
-        density*=0;
+    double density = 0.1;
+
+    for(var i = 0; i < rowLen; i++){
+      if(i<previousDates.length){
+        if(previousDates[i]){
+          density+=0.2;
+        }else{
+          density*=0;
+          density+=.1;
+        }
+        circles.add(_buildCircle(context, previousDates[i], density));
+        }
+      else{
+        circles.add(_buildCircle(context, false, 0.1));
       }
-      circles.add(_buildCircle(context, previousDates[i], density));
     }
+
     return circles;
 
   }
@@ -49,10 +57,10 @@ class _ProgressRow extends State{
     return Container(
       padding: EdgeInsets.all(2.0),
       child: SizedBox(
-        width: 15,
-        height: 15,
+        width: 18,
+        height: 18,
         child: CustomPaint(
-          painter: CirclePainter(completed),
+          painter: CirclePainter(completed, density),
         ),
       ),
     );
@@ -60,22 +68,22 @@ class _ProgressRow extends State{
 
 }
 
-
-
 class CirclePainter extends CustomPainter {
   bool completed;
-  final _paint = Paint()
-    ..color = Colors.black12
-    ..strokeWidth = 2
-  // Use [PaintingStyle.fill] if you want the circle to be filled.
+  double density;
+  final _paint = Paint();
 
-    ..style = PaintingStyle.stroke;
-
-  CirclePainter(bool completed) {
+  CirclePainter(bool completed, double density) {
     this.completed = completed;
+    this.density = density;
+    _paint.style = PaintingStyle.stroke;
     if (completed) {
       _paint.style = PaintingStyle.fill;
     }
+    _paint.color = Color.fromRGBO(111, 220, 150, min(density,1));
+    _paint.strokeWidth = 3;
+  // Use [PaintingStyle.fill] if you want the circle to be filled.
+
   }
 
   @override

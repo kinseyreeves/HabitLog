@@ -53,6 +53,7 @@ class Habit {
   List getPreviousDates(DateTime dt){
     ///
     /// Gets the previous dates from a datetime contained in the habit
+    /// Returns a list of length 7.
     List list = new List<bool>();
 
     if(this.completedHabitDates.containsKey(dt)){
@@ -66,6 +67,7 @@ class Habit {
         }
         i+=1;
       }
+
     }
 
     return list;

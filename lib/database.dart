@@ -38,7 +38,7 @@ class Database {
     workout.completedHabitDates[dt1] = true;
     workout.completedHabitDates[dt2] = true;
     workout.completedHabitDates[dt3] = true;
-    workout.completedHabitDates[dt4] = false;
+    workout.completedHabitDates[dt4] = true;
     workout.completedHabitDates[dt5] = true;
     workout.completedHabitDates[dt6] = true;
     workout.completedHabitDates[dt7] = false;
