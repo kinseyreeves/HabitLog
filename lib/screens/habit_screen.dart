@@ -120,9 +120,9 @@ class HabitScreenState extends State {
 
   navigateReturnHabit(BuildContext context) async {
     /**
-     *
+     * Async function which starts the named route
      */
-    final result = await Navigator.pushNamed(context, '/second');
+    final result = await Navigator.pushNamed(context, '/add_habit');
     if (result != null) {
       database.addHabit(result);
     }

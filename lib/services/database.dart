@@ -1,8 +1,19 @@
 import 'habit.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+
+
+
+
 
 class Database {
   static final Database _database = Database._internal();
   bool first = true;
+
+
 
   List<Habit> habits = new List<Habit>();
 
@@ -10,13 +21,21 @@ class Database {
     return _database;
   }
 
+  void setupDatabse(){
+
+  }
+
+
+
+
   void setupHabits() {
+
     Habit workout = new Habit(
         "Workout", true, [true, false, false, true, true, true, true], 3, 4);
     if (_database.first) {
       _database.first = false;
       print("happens once");
-
+//      #print(Firestore.instance.collection('baby').snapshots());
       habits.add(workout);
 
 //      habits.add(new Habit("Walk Dog", true,
@@ -25,6 +44,7 @@ class Database {
       var date = new DateTime.now();
       print("${date.weekday}");
     }
+
     print("adding new habits");
     DateTime dt1 = DateTime(2020,9,1);
     DateTime dt2 = DateTime(2020,9,2);
@@ -59,6 +79,10 @@ class Database {
 
   List<Habit> getHabits() {
     return this.habits;
+  }
+
+  void printDatabaseHabit(){
+
   }
 
   List<Habit> getTodaysHabits() {}
