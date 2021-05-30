@@ -1,8 +1,10 @@
 import 'dart:collection';
 
-import 'database.dart';
-import 'package:sortedmap/sortedmap.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../services/database.dart';
+import 'package:sortedmap/sortedmap.dart';
+import '../util.dart';
 
 class Habit {
   ///Habit Class containing all information for habits
@@ -13,40 +15,54 @@ class Habit {
   int _goal;
   double _priority;
   int _completed;
+  String _hid;
+  int experienceIncrease;
 //  Map completedHabitDates = new LinkedHashMap<String, bool>();
-  SortedMap completedHabitDates = new SortedMap<DateTime, bool>(Ordering.byKey());
+  SortedMap completedHabitDates = new SortedMap<String, bool>(Ordering.byKey());
   Database database;
 
-  Habit(
-      this._name, this._repeating, this._repeats, this._goal, this._priority) {
+  Habit(this._name, this._repeating, this._repeats, this._goal, this._priority) {
     _completed = 0;
     database = Database();
-
     int weeklyTrue = _repeats.where((item)  => item == true).length;
-    print(weeklyTrue);
-    var today = DateTime.now();
+    String today = database.getTodayString();
     int i = 0;
-    while (i < _goal) {
-      if(_repeats[today.weekday-1]){
-        String dayString = database.getDateString(today);
-        completedHabitDates[today]=false;
-        i += 1;
-      }
-      DateTime tomorrow = DateTime(today.year, today.month, today.day+1);
-      today=tomorrow;
-    }
-    print(this.name);
-    print("Checking map");
-    print(completedHabitDates);
-    //print(completedHabitDates[]);
+    completedHabitDates[today] = false;
+
   }
 
+  Habit.fromDb(this._name, this._repeating,
+      this._repeats, this._goal, this._priority,
+      this.completedHabitDates, this._completed){
+  }
+
+  Habit.fromDb1(DocumentSnapshot ds){
+    this._hid = ds.documentID;
+    this._goal = ds['goal'];
+    this._name = ds['name'];
+    this._priority = ds['priority'];
+    this._repeating = ds['repeating'];
+//    this._repeats = ds['repeats'];
+    this._repeats = (ds['repeats'] as List)?.map((item) => item as bool)?.toList();
+
+    Map dates = Map<String, bool>.from(ds['completedDates']);
+    this.completedHabitDates = new SortedMap.from(dates, Ordering.byKey());
+    this._completed = ds['completed'];
+    this.experienceIncrease = calculateExperienceIncrease().toInt();
+  }
+
+  double calculateExperienceIncrease(){
+    return 50.0;
+  }
 
 
   bool habitRunsToday() {
     /// Whether or not the habit runs today
     ///
-    int dayIndex = new DateTime.now().weekday - 1;
+    print("Does it run today?");
+    print(this._repeats);
+    int dayIndex = DateTime.now().weekday - 1;
+
     return _repeats[dayIndex];
   }
 
@@ -54,10 +70,17 @@ class Habit {
     ///
     /// Gets the previous dates from a datetime contained in the habit
     /// Returns a list of length 7.
-    List list = new List<bool>();
+    List<bool> list = [];
+    String todayStr = Database().getDateString(dt);
 
-    if(this.completedHabitDates.containsKey(dt)){
-      DateTime key = this.completedHabitDates.lastKeyBefore(dt);
+    //If we have a habit for today, get all the habits that preceed it
+    if(this.completedHabitDates.containsKey(todayStr)){
+      String key = this.completedHabitDates.lastKeyBefore(todayStr);
+      if (key==null){
+        if(this.completedHabitDates[todayStr])
+          list.insert(0,this.completedHabitDates[todayStr]);
+        return list;
+      }
       list.add(this.completedHabitDates[key]);
       int i = 0;
       while (i<10 && key!=null){
@@ -67,18 +90,76 @@ class Habit {
         }
         i+=1;
       }
-
     }
+    if(this.completedHabitDates.containsKey(todayStr))
+      list.insert(0,this.completedHabitDates[todayStr]);
 
     return list;
   }
 
+  List new_getPreviousDates(DateTime dt){
+
+    String todayStr = Database().getDateString(dt);
+    List<bool> list = [];
+    print(this.completedHabitDates);
+    DateTime prevDate;
+
+    int idx = this.completedHabitDates.length - 1;
+    int i = 0;
+    print(dt.weekday);
+    print(this._repeats);
+
+    /// Loop going backwards day by day
+    while (i < 100 && list.length <= 7){
+      /// If the habit should run on this day
+
+      if(this._repeats[dt.weekday-1]){
+        //TODO fix this to get the actual value, not just if it contains it
+        if (this.completedHabitDates.containsKey(Database().getDateString(dt))){
+          list.add(this.completedHabitDates[Database().getDateString(dt)]);
+        }else{
+          list.add(false);
+        }
+      }
+      prevDate = DateTime(dt.year, dt.month, dt.day-1);
+      i++;
+
+      dt = prevDate;
+    }
+    print(list);
+
+    List out = List<bool>.filled(7, false);
+    print("here");
+    return list;
+
+  }
+
+
+
   void completeHabit(DateTime dt) {
     /// Completes a habit on a specific date
-    ///
     if(completedHabitDates.containsKey(dt)){
       completedHabitDates[dt] = true;
     }
+  }
+
+
+  bool isCompletedToday(){
+    String key = Database().getTodayString();
+    if(completedHabitDates.containsKey(key)){
+      return completedHabitDates[key];
+    }
+    return false;
+  }
+
+
+
+  getDatabaseHabits(){
+
+  }
+
+  SortedMap<DateTime, bool> getCompletedHabitDates(){
+    return this.completedHabitDates;
   }
 
   //getters and setters
@@ -98,6 +179,8 @@ class Habit {
   double get priority => _priority;
 
   int get goal => _goal;
+
+  String get hid => _hid;
 
   bool get repeating => _repeating;
 

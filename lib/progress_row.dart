@@ -1,53 +1,60 @@
 import 'package:flutter/material.dart';
-import 'habit.dart';
-import 'database.dart';
+import 'models/habit.dart';
+import 'services/database.dart';
 import 'dart:math';
 
-class ProgressRow extends StatefulWidget {
-  Habit habit;
-  ProgressRow(this.habit, {Key key}) : super(key: key);
+//class ProgressRow extends StatelessWidget {
+//  Habit habit;
+//  ProgressRow(this.habit, {Key key}) : super(key: key);
+//
+//  @override
+//  _ProgressRow createState() => _ProgressRow(habit);
+//}
 
-  @override
-  _ProgressRow createState() => _ProgressRow(habit);
-}
 
-
-class _ProgressRow extends State{
+class ProgressRow extends StatelessWidget{
   Habit habit;
   final int rowLen = 7;
 
-  _ProgressRow(this.habit);
+  ProgressRow(this.habit);
 
   @override
   Widget build(BuildContext context) {
+
+    List prevdates = habit.getPreviousDates(Database().getToday());
+//    print(prevdates);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        ..._buildRow(context, habit.getPreviousDates(Database().getToday())),
+        ..._buildRow(context, habit.new_getPreviousDates(Database().getToday())),
       ],
     );
   }
 
   List<Widget> _buildRow(BuildContext context, List previousDates){
-    print("building row");
-    List circles = List<Widget>();
-    print(previousDates);
+    List<Widget> circles = [];
     double density = 0.1;
+    while (previousDates.length < rowLen){
+      previousDates.add(false);
+    }
+    List<bool> revDates = previousDates.sublist(0,rowLen).reversed.toList();
+//    print(revDates);
 
     for(var i = 0; i < rowLen; i++){
-      if(i<previousDates.length){
-        if(previousDates[i]){
+      if(i<revDates.length){
+        if(revDates[i]){
           density+=0.2;
         }else{
           density*=0;
           density+=.1;
         }
-        circles.add(_buildCircle(context, previousDates[i], density));
+        circles.add(_buildCircle(context, revDates[i], density));
         }
       else{
         circles.add(_buildCircle(context, false, 0.1));
       }
     }
+//    print(circles);
 
     return circles;
 
