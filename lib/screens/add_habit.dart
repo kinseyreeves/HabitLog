@@ -36,7 +36,7 @@ class AddHabitScreen extends State<AddHabitScreenWidget> {
 
     final Map arguments = ModalRoute.of(context).settings.arguments as Map;
     if (arguments!=null){
-      print(arguments['User']);
+//      print(arguments['User']);
     }
 
     weekdaySelector = _getWeekdaySelector(this.repeatValue);

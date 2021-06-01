@@ -4,23 +4,20 @@ import '../models/habit.dart';
 import '../services/database.dart';
 import '../progress_row.dart';
 import 'package:weekday_selector/weekday_selector.dart';
-import 'package:provider/provider.dart';
 import '../models/user.dart';
 import '../services/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../main.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-
+import 'package:confetti/confetti.dart';
 
 
 class HabitScreen extends StatefulWidget {
   HabitScreenState habitScreenState;
-  User user;
   AuthService authService;
   MainScreenState mainScreenState;
   HabitScreen(MainScreenState mainScreenState){
     this.mainScreenState = mainScreenState;
-    this.user = user;
     this.authService = new AuthService();
     this.habitScreenState = new HabitScreenState();
       // do some operation
@@ -32,37 +29,54 @@ class HabitScreen extends StatefulWidget {
 }
 
 class HabitScreenState extends State<HabitScreen> {
-  User user;
   Database database;
   List<Habit> habits;
   int selectedItem = -1;
   MainScreenState mainScreenState;
-  
   bool showTodaysHabits = true;
-
   List<int> selectedItems = [];
+  ConfettiController controllerTopCenter;
 
+  bool shouldCelebrate;
 
   HabitScreenState() {
-    //this.user = widget.user;
-//
+    //Database() = widget.user;
     database = Database();
     habits = Database().getHabits();
   }
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      initController();
+    });
+  }
+
+  void initController() {
+    controllerTopCenter =
+        ConfettiController(duration: const Duration(seconds: 3));
+  }
 
   @override
   Widget build(BuildContext context) {
     this.mainScreenState = widget.mainScreenState;
-    final user = Provider.of<User>(context);
-    this.user = user;
+    User user = Database().getLocalUser();
+    print("HABIT SCREEN");
 
-    if(user!=null) {
-      print("BUILDING exp" + database.user.experience.toString());
-//      print(this.showTodaysHabits);
-      database.setupUserCollection();
-      database.setUser(this.user);
-      database.getTodaysHabits(this.user.uid);
+    ConfettiController _controllerBottomCenter;
+
+    if(user!=null){
+      print("PROVIDER USER");
+      print(user.uid);
+
+      database.getTodaysHabits(Database().user.uid);
+      shouldCelebrate = user.getShouldCelebrate();
+
+      print("Habit screen user");
+      print(Database().getUid());
+
       return Scaffold(
         floatingActionButton: FloatingActionButton(
           onPressed: () {
@@ -72,6 +86,7 @@ class HabitScreenState extends State<HabitScreen> {
         ),
         body:Column(
           children: [
+            generateConfetti(),
             generateStatusBar(),
             Expanded(
                 child: generateList(),
@@ -88,32 +103,41 @@ class HabitScreenState extends State<HabitScreen> {
 
   Widget generateStatusBar(){
     return Container(
+      margin: EdgeInsets.all(10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text("Level " + this.user.getUserLevel().toString()),
+            Text("Level " + Database().user.getUserLevel().toString()),
             progressBar(),
+            Container(),
             progressSwitch()
           ],
         )
     );
   }
+  
+  Widget generateConfetti(){
+    return ConfettiWidget(
+      confettiController: controllerTopCenter,
+      blastDirection: 3,);
+  }
 
   Widget progressBar(){
 //    print("rebuilding bar");
     return LinearPercentIndicator(
-      width: 100.0,
+      width: 150.0,
       lineHeight: 8.0,
-      percent: this.user.getPercentNextLevel(),
+      percent: Database().user.getPercentNextLevel(),
       progressColor: Colors.blue,
     );
   }
 
   Widget progressSwitch(){
+    ///TODO put this elsewhere
     return Switch(value: showTodaysHabits, onChanged: (value){
-
       setState(() {
         this.showTodaysHabits = value;
+        controllerTopCenter.play();
       });
 
     },);
@@ -121,7 +145,7 @@ class HabitScreenState extends State<HabitScreen> {
 
   StreamBuilder generateList(){
     return StreamBuilder<QuerySnapshot>(
-      stream: database.getFrontPageSnapshot(user),
+      stream: database.getFrontPageSnapshot(Database().user),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return ListView.builder(
@@ -132,7 +156,7 @@ class HabitScreenState extends State<HabitScreen> {
               //TODO ideally its not populated at all
 
               if(!habit.habitRunsToday() && this.showTodaysHabits){
-                print(habit.name);
+//                print(habit.name);
                 return Container(width: 0,height: 0,);
               }
               return GestureDetector(
@@ -213,6 +237,12 @@ class HabitScreenState extends State<HabitScreen> {
                       habit.completed-=1;
                     }
                     database.updateCompletedToday(database.user.uid, habit, newValue);
+
+                    print(this.shouldCelebrate);
+                    if(this.shouldCelebrate){
+                      controllerTopCenter.play();
+                    }
+
                   });
                   Text('Remember me');
                 }),
@@ -239,10 +269,10 @@ class HabitScreenState extends State<HabitScreen> {
     /**
      * Async function which starts the named route
      */
-    final result = await Navigator.pushNamed(context, '/add_habit', arguments: {'User': this.user});
+    final result = await Navigator.pushNamed(context, '/add_habit', arguments: {'User':Database().user});
     if (result != null) {
       Habit habit = database.addHabit(result);
-      database.createHabitCollection(this.user.uid, habit);
+      database.createHabitCollection(Database().user.uid, habit);
     }
     setState(() {});
   }

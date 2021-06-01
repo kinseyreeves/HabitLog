@@ -24,20 +24,12 @@ class Database {
 
   Map<int, Habit> selectedHabits = {};
   List<Habit> cachedHabits = [];
-
   List<Habit> habits = [];
 
   factory Database() {
     return _database;
   }
 
-  void setUser(User user){
-    this.user = user;
-  }
-
-  void setupUserCollection(){
-    this.userCollection = Firestore.instance.collection("users");
-  }
 
   initFirebaseUser(){
     /**
@@ -45,15 +37,18 @@ class Database {
      */
   }
 
-
   void databaseConstructor() {
-
     if (_database.first) {
       _database.first = false;
-
       var date = new DateTime.now();
     }
+  }
 
+  void databaseDestructor(){
+    first = true;
+    selectedHabits = {};
+    cachedHabits = [];
+    habits = [];
   }
 
   void deleteSelectedHabits(){
@@ -76,7 +71,6 @@ class Database {
     /**
      * Creates a collection
      */
-
     this.userCollection.document(uid).collection('habits').add({
       'name': habit.name,
       'repeating': habit.repeating,
@@ -90,16 +84,28 @@ class Database {
     });
   }
 
-  void generateUserInfo(String uid) async {
+  void setLocalUser(String uid) async {
+    /// Gets the user info
+    int completed;
+    int experience;
+    int daysMissed;
+    int daysUsed;
     ///Create a user
-    ///
+    this.setupUserCollection();
     DocumentSnapshot doc = await this.userCollection.document(uid).get();
-    int completed = doc['completed'];
-    int experience = doc['experience'];
-    int daysMissed = doc['daysMissed'];
+//    print("here");
+//    print(uid);
+
+    experience = doc['experience'];
+    daysMissed = doc['daysMissed'];
+    completed = doc['completed'];
+    daysUsed = doc['daysUsed'];
+    print("EXP");
+    print(experience);
     //Need to force a single instance of the user
     if(this.user==null){
       this.user = User(uid, completed, experience, daysMissed);
+      print(this.user.uid);
     }
   }
 
@@ -107,29 +113,41 @@ class Database {
     return this.user;
   }
 
+  String getUid(){
+    return this.user.uid;
+  }
+//
+//  void setUser(User user){
+//    this.user = user;
+//  }
 
-  void createUserInfo(String uid){
+  void setupUserCollection(){
+    this.userCollection = Firestore.instance.collection("users");
+  }
+
+  void generateFirebaseUserInfo(String uid){
+    /// Instantiates the user in the db
     this.setupUserCollection();
-    Firestore.instance.collection("users").document(uid).setData(
+    userCollection.document(uid).setData(
       {
         "completed":0,
         "experience":0,
         "daysUsed":0,
         "daysMissed": 0,
       },
-      merge: true,
     );
   }
 
   void updateCompletedToday(String uid, Habit habit, bool val){
-    /// Upates the completed state of a habit in the database
-    ///
+    /// Updates the completed state of a habit in the database
+    /// uid - user id
+    /// Habit habit
+    /// value from the switch / completed or not
     bool isCompleted = false;
     if(habit.completed >= habit.goal){
       isCompleted = true;
     }
-    print("updatecompletedtoday");
-    print(this.user.experience);
+
     habit.completedHabitDates[Database().getTodayString()] = val;
     this.userCollection.document(uid).collection('habits').document(habit.hid).updateData({
       "completedDates." + Database().getTodayString() : val,
@@ -140,23 +158,18 @@ class Database {
       "completedDates." + Database().getTodayString() : val,
     });
     // If the user completes a habit today,
-
+    
     if(val){
-      print("valtrue");
-      this.user.experience = this.user.experience + habit.calculateExperienceIncrease().toInt();
+      this.user.addExperience(habit.calculateExperienceIncrease().toInt());
       this.userCollection.document(uid).updateData({
       "experience":this.user.experience,
       });
     }else{
-      print("valfalse");
-      this.user.experience = this.user.experience - habit.calculateExperienceIncrease().toInt();
+      this.user.addExperience(-habit.calculateExperienceIncrease().toInt());
       this.userCollection.document(uid).updateData({
       "experience":this.user.experience,
       });
     }
-    print(this.user.hashCode);
-
-    print(this.user.experience);
 
 
   }
@@ -164,9 +177,7 @@ class Database {
 
   Database._internal();
 
-  List<Habit> getHabits() {
-    return this.habits;
-  }
+
 
   void printDatabaseHabit(){
 
@@ -203,7 +214,9 @@ class Database {
     return this.getDateString(DateTime(today.year, today.month, today.day));
   }
 
-
+  List<Habit> getHabits() {
+    return this.habits;
+  }
 
   String getDateString(DateTime dt) {
     return dateFormat.format(dt);
@@ -212,7 +225,6 @@ class Database {
   DateTime getDateTimeFromStr(String dt){
     return dateFormat.parse(dt);
   }
-
 
   static Database get database => _database;
 }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'screens/habit_screen.dart';
 import 'screens/stats_screen.dart';
@@ -12,6 +14,7 @@ import 'services/auth.dart';
 import 'screens/login.dart';
 import 'package:provider/provider.dart';
 import 'models/user.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 
 
@@ -19,36 +22,48 @@ void main() async{
 //  print("Start");
   WidgetsFlutterBinding.ensureInitialized();
 
-
   //Database connection
   Database database = new Database();
   database.databaseConstructor();
 
   //User authentication
   final AuthService _auth = AuthService();
+  bool logged = await _auth.isLoggedIn();
+  print("logged");
+  print(logged);
+  String uid = await _auth.checkUID();
 
-  //sign out for debugging
-  //_auth.signOut();
-  bool isLogged = await _auth.isLogged();
-  database.setupUserCollection();
-  database.generateUserInfo(_auth.firebaseUID);
+  //TODO fix this!
+  if(Database().getLocalUser()==null){
+    print("UID");
+    print(uid);
+    Database().setLocalUser(uid);
+  }
 
+  print("IS LOGGED?");
+  print(uid);
+  print(_auth.firebaseUID);
+  print(Database().getLocalUser());
 
-  runApp(MaterialApp(
-    title: 'Habit log',
-    // Start the app with the "/" named route. In this case, the app starts
-    // on the FirstScreen widget.
-    //initialRoute: initialRoute,
-    routes: {
-      // When navigating to the "/" route, build the FirstScreen widget.
-      '/': (context) => LandingPage(),
-      '/add_habit': (context) => AddHabitScreenWidget(),
-      '/login' : (context) => Login(),
-      '/home': (context) => MainScreen(),
-    },
-  ));
+  runApp(
+
+    Phoenix(
+      child: MaterialApp(
+        title: 'Habit log',
+        // Start the app with the "/" named route. In this case, the app starts
+        // on the FirstScreen widget.
+        //initialRoute: initialRoute,
+        routes: {
+          // When navigating to the "/" route, build the FirstScreen widget.
+          '/': (context) => LandingPage(),
+          '/add_habit': (context) => AddHabitScreenWidget(),
+          '/login' : (context) => Login(),
+          '/home': (context) => MainScreen(),
+        },
+      ))
+    );
+
 }
-
 
 class LandingPage extends StatelessWidget {
 
@@ -56,7 +71,7 @@ class LandingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _auth.isLogged().then((success) {
+    _auth.isLoggedIn().then((success) {
       if (success) {
         Navigator.pushReplacementNamed(context, '/home');
       } else {
@@ -111,10 +126,8 @@ class MainScreenState extends State {
 
   @override
   Widget build(BuildContext context) {
-
-    return StreamProvider<User>.value(
-      value:AuthService().user,
-      child: Scaffold(
+    print("MAIN");
+    return Scaffold(
         bottomNavigationBar: BottomNavigationBar(
             onTap: onTapped,
             currentIndex: currentTabIndex,
@@ -140,23 +153,22 @@ class MainScreenState extends State {
               label: Text('logout'),
               onPressed: (){
                 final AuthService _auth = AuthService();
-                _auth.signOut();
                 Navigator.pushReplacementNamed(context, '/login');
+                _auth.signOut(context);
+                print("REBIRTHING");
+                Phoenix.rebirth(context);
               },
             ),
             this.deleteIcon,
           ]
         ),
         body: tabs[currentTabIndex],
-      )
-
-    );
+      );
   }
 
   void resetAppBar(){
     ///Used to reset the app bar (add delete button etc)
 
-//    print("RESETTING APP BAR");
     if (Database.database.selectedHabits.length > 0){
       this.deleteIcon = FlatButton.icon(icon:Icon(Icons.delete),
         onPressed: (){
@@ -187,8 +199,5 @@ class MainScreenState extends State {
   getBusinesScreen() {
     return this.statsScreen;
   }
-
-
-
 
 }

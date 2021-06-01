@@ -28,7 +28,6 @@ class Habit {
     String today = database.getTodayString();
     int i = 0;
     completedHabitDates[today] = false;
-
   }
 
   Habit.fromDb(this._name, this._repeating,
@@ -52,17 +51,14 @@ class Habit {
   }
 
   double calculateExperienceIncrease(){
+    //TODO scale with streak, / times completed
     return 50.0;
   }
 
 
   bool habitRunsToday() {
     /// Whether or not the habit runs today
-    ///
-    print("Does it run today?");
-    print(this._repeats);
     int dayIndex = DateTime.now().weekday - 1;
-
     return _repeats[dayIndex];
   }
 
@@ -101,13 +97,13 @@ class Habit {
 
     String todayStr = Database().getDateString(dt);
     List<bool> list = [];
-    print(this.completedHabitDates);
+//    print(this.completedHabitDates);
     DateTime prevDate;
 
     int idx = this.completedHabitDates.length - 1;
     int i = 0;
-    print(dt.weekday);
-    print(this._repeats);
+//    print(dt.weekday);
+//    print(this._repeats);
 
     /// Loop going backwards day by day
     while (i < 100 && list.length <= 7){
@@ -126,10 +122,9 @@ class Habit {
 
       dt = prevDate;
     }
-    print(list);
+//    print(list);
 
     List out = List<bool>.filled(7, false);
-    print("here");
     return list;
 
   }

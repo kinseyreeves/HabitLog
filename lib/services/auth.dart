@@ -3,55 +3,84 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_app/models/user.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../services/database.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 
 //TODO use this https://stackoverflow.com/questions/53194574/flutter-start-app-with-different-routes-depending-on-login-state to connect to firebase
 
 class AuthService {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  ///Service providing authentication
 
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final googleSignIn = GoogleSignIn();
   String firebaseUID;
 
-  Future<bool> isLogged() async {
+  Future<String> checkUID() async {
     try {
       final FirebaseUser user = await _firebaseAuth.currentUser();
-//      bool isValidLogin = await Backendless.UserService.isValidLogin();
-//      print("CURRENT USER");
       this.firebaseUID = user.uid;
-      return user != null;
-
+      return user.uid;
     } catch (e) {
       print("failed");
+      return null;
+    }
+  }
+
+  Future<bool> isLoggedIn() async {
+    try {
+      final FirebaseUser user = await _firebaseAuth.currentUser();
+
+      print(user.uid);
+      return true;
+    } catch (e) {
+      print("failed log in");
       return false;
     }
   }
 
-
-  Future<User> getUser() async {
+  Future<FirebaseUser> getUser() async {
     try {
       final FirebaseUser user = await _firebaseAuth.currentUser();
-      //bool isValidLogin = await Backendless.UserService.isValidLogin();
-      //print(user.uid);
-      return userFromFirebaseUser(user);
+      return user;
     } catch (e) {
       return null;
     }
   }
 
-  User userFromFirebaseUser(FirebaseUser user){
-    //get a user type from the firebase user
-    if(user!=null){
-      Database().generateUserInfo(user.uid);
-      return Database().getLocalUser();
-    }
-    return null;
-  }
+//  void setupDatabase() async{
+//    try {
+//      final FirebaseUser user = await _firebaseAuth.currentUser();
+//
+//    } catch (e) {
+//      print("failed");
+//      return false;
+//    }
+//  }
+//
+//  User userFromFirebaseUser(FirebaseUser user){
+//    //get a user type from the firebase user
+//
+//    if(user!=null){
+//      return Database().getLocalUser();
+//    }
+//    return null;
+//  }
 
-  Stream<User> get user {
-    return _firebaseAuth.onAuthStateChanged
-    //.map((FirebaseUser user) => _userFromFirebaseUser(user));
-        .map(userFromFirebaseUser);
+//  Stream<User> get user {
+//    return _firebaseAuth.onAuthStateChanged
+//        .map(userFromFirebaseUser);
+//  }
+
+  Future<void> signOut(BuildContext context) async {
+//    Database().databaseDestructor();
+    try{
+      return await _firebaseAuth.signOut();
+
+    }catch(e){
+      print(e.toString());
+      return null;
+    }
   }
 
   signInGoogle() async{
@@ -63,24 +92,20 @@ class AuthService {
       GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
       AuthCredential credential = GoogleAuthProvider.getCredential(idToken: googleSignInAuthentication.idToken, accessToken: googleSignInAuthentication.accessToken);
       AuthResult result = await _firebaseAuth.signInWithCredential(credential);
-//      print("IS NEW USER?");
+      //print("IS NEW USER?");
       FirebaseUser user = await _firebaseAuth.currentUser();
-//      print(result.additionalUserInfo.isNewUser);
+      print(result.additionalUserInfo.isNewUser);
+
       if(result.additionalUserInfo.isNewUser){
-        Database().createUserInfo(user.uid);
+        print("NEW USER GOOGLE");
+        Database().generateFirebaseUserInfo(user.uid);
       }
-      return userFromFirebaseUser(user);
+      await Database().setLocalUser(user.uid);
+
+//      User dbUser = userFromFirebaseUser(user);
+      return Database().getLocalUser();
     }
     return null;
-  }
-
-  Future<void> signOut() async {
-    try{
-      return await _firebaseAuth.signOut();
-    }catch(e){
-      print(e.toString());
-      return null;
-    }
   }
 
   Future signInAnon() async {
@@ -90,18 +115,41 @@ class AuthService {
      */
     try {
       AuthResult result = await _firebaseAuth.signInAnonymously();
-//      print("IS NEW USER?");
 
       FirebaseUser user = result.user;
-      if(result.additionalUserInfo.isNewUser){
-        Database().createUserInfo(user.uid);
-      }
-      await Database().generateUserInfo(user.uid);
 
-      return userFromFirebaseUser(user);
+      if(result.additionalUserInfo.isNewUser){
+        print("IS NEW USER");
+        Database().generateFirebaseUserInfo(user.uid);
+      }
+
+      Database().setLocalUser(user.uid);
+
+      return Database().getLocalUser();
+
     }catch(e){
       print(e.toString());
       return null;
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

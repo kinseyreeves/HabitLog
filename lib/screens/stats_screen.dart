@@ -20,7 +20,7 @@ class StatsScreen extends StatelessWidget {
               },
             ),
           ),
-          Container(child: Text("test"),),
+          Container(child: Text(db.user.experience.toString()),),
 
         ]
       ),

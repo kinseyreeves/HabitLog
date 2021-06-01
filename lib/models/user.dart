@@ -12,6 +12,7 @@ class User {
   List<int> levelBoundaries;
   int level;
   double percentNextLevel;
+  bool shouldCelebrate=false;
 
   User(String uid, int completed, int experience, int daysMissed){
     this.uid = uid;
@@ -21,27 +22,38 @@ class User {
     this.levelBoundaries = calculateLevelBoundaries();
     this.level = getUserLevel();
     this.percentNextLevel = getPercentNextLevel();
-
   }
 
   List<int> calculateLevelBoundaries(){
+    /// Generate the boundaries for the levels
+    /// Return a list of ints at which the user
+    /// levels up based on experience (exp func)
     List<int> levelBoundaries = [];
-    double multipler = 1.04;
+    double multiplier = 1.05;
     int currentExp = 100;
     int sum = 0;
+
     for (int i = 1; i <= 100; i++){
-      currentExp = (currentExp*multipler).ceil().toInt();
+      currentExp = (currentExp*multiplier).ceil().toInt();
       sum+=currentExp;
       levelBoundaries.add(sum);
     }
+//    print(levelBoundaries);
     return levelBoundaries;
   }
 
   double getPercentNextLevel(){
-    print("Getting percent");
-    print(this.levelBoundaries);
+    /// Gets the percentage towards the next level
+
+    //Should the user celebrate? i.e. did we just level up
+    int levelUpCheck = this.getUserLevel();
+
+    if(this.experience==0){
+      return 0;
+    }
+
     this.level = this.getUserLevel();
-    print(this.level);
+
     int expReq;
     int levelExp;
     if(this.level == 0){
@@ -53,19 +65,25 @@ class User {
           this.levelBoundaries[this.level-1];
       levelExp = this.experience - this.levelBoundaries[this.level-1];
     }
-//    print(expReq);
-//    print(levelExp);
-      return levelExp/expReq;
-
+    return levelExp/expReq;
   }
 
   void printUser(){
-   print(this.uid);
-   print(this.completed);
-   print(this.experience);
-   print(this.daysMissed);
+    print("\nPRINTING USER");
+    print(this.uid);
+    print(this.completed);
+    print(this.experience);
+    print(this.level);
+    print(this.daysMissed);
+    print("\n");
   }
 
+  bool getShouldCelebrate(){
+    print(this.experience);
+    print(this.level);
+    print(this.levelBoundaries[level]);
+    return true;
+  }
 
   int getUserLevel(){
     for (int i = 0; i < this.levelBoundaries.length; i++){
@@ -74,6 +92,10 @@ class User {
       }
     }
     return 100;
+  }
+  
+  void addExperience(int val){
+    this.experience+=val;
   }
 
 
