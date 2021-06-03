@@ -29,21 +29,19 @@ void main() async{
   //User authentication
   final AuthService _auth = AuthService();
   bool logged = await _auth.isLoggedIn();
-  print("logged");
-  print(logged);
+//  print("logged");
+//  print(logged);
   String uid = await _auth.checkUID();
 
-  //TODO fix this!
   if(Database().getLocalUser()==null){
-    print("UID");
-    print(uid);
-    Database().setLocalUser(uid);
+    if(logged){
+      Database().setLocalUser(uid);
+    }else{
+      //TODO log the user out?
+    }
   }
 
-  print("IS LOGGED?");
-  print(uid);
-  print(_auth.firebaseUID);
-  print(Database().getLocalUser());
+  print("[L] Main " + Database().getLocalUser().toString());
 
   runApp(
 
@@ -126,7 +124,7 @@ class MainScreenState extends State {
 
   @override
   Widget build(BuildContext context) {
-    print("MAIN");
+//    print("Building main");
     return Scaffold(
         bottomNavigationBar: BottomNavigationBar(
             onTap: onTapped,
@@ -155,7 +153,6 @@ class MainScreenState extends State {
                 final AuthService _auth = AuthService();
                 Navigator.pushReplacementNamed(context, '/login');
                 _auth.signOut(context);
-                print("REBIRTHING");
                 Phoenix.rebirth(context);
               },
             ),

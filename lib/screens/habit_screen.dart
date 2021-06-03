@@ -29,7 +29,6 @@ class HabitScreen extends StatefulWidget {
 }
 
 class HabitScreenState extends State<HabitScreen> {
-  Database database;
   List<Habit> habits;
   int selectedItem = -1;
   MainScreenState mainScreenState;
@@ -41,7 +40,6 @@ class HabitScreenState extends State<HabitScreen> {
 
   HabitScreenState() {
     //Database() = widget.user;
-    database = Database();
     habits = Database().getHabits();
   }
 
@@ -61,21 +59,17 @@ class HabitScreenState extends State<HabitScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     this.mainScreenState = widget.mainScreenState;
     User user = Database().getLocalUser();
-    print("HABIT SCREEN");
+    print("[L] Habit screen " + Database().getLocalUser().toString());
 
     ConfettiController _controllerBottomCenter;
 
     if(user!=null){
-      print("PROVIDER USER");
-      print(user.uid);
 
-      database.getTodaysHabits(Database().user.uid);
+      Database().getTodaysHabits(Database().getUid());
       shouldCelebrate = user.getShouldCelebrate();
-
-      print("Habit screen user");
-      print(Database().getUid());
 
       return Scaffold(
         floatingActionButton: FloatingActionButton(
@@ -107,7 +101,7 @@ class HabitScreenState extends State<HabitScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text("Level " + Database().user.getUserLevel().toString()),
+            Text("Level " + Database().getLocalUser().getUserLevel().toString()),
             progressBar(),
             Container(),
             progressSwitch()
@@ -145,7 +139,7 @@ class HabitScreenState extends State<HabitScreen> {
 
   StreamBuilder generateList(){
     return StreamBuilder<QuerySnapshot>(
-      stream: database.getFrontPageSnapshot(Database().user),
+      stream: Database().getFrontPageSnapshot(Database().getLocalUser()),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return ListView.builder(
@@ -166,10 +160,10 @@ class HabitScreenState extends State<HabitScreen> {
                   onLongPress: (){
 //                    print("long pressed");
                     setState(() {
-                      if(this.database.selectedHabits.containsKey(index)){
-                        this.database.selectedHabits.remove(index);
+                      if(Database().selectedHabits.containsKey(index)){
+                        Database().selectedHabits.remove(index);
                       }else{
-                        this.database.selectedHabits[index] = habit;
+                        Database().selectedHabits[index] = habit;
                       }
                       this.mainScreenState.resetAppBar();
                     });
@@ -199,7 +193,7 @@ class HabitScreenState extends State<HabitScreen> {
 
     Color color;
 
-    if(this.database.selectedHabits.containsKey(index)){
+    if(Database().selectedHabits.containsKey(index)){
       color = Colors.blue;
     }else{
       color = Colors.white;
@@ -236,9 +230,8 @@ class HabitScreenState extends State<HabitScreen> {
                     }else{
                       habit.completed-=1;
                     }
-                    database.updateCompletedToday(database.user.uid, habit, newValue);
+                    Database().updateCompletedToday(Database().user.uid, habit, newValue);
 
-                    print(this.shouldCelebrate);
                     if(this.shouldCelebrate){
                       controllerTopCenter.play();
                     }
@@ -271,8 +264,8 @@ class HabitScreenState extends State<HabitScreen> {
      */
     final result = await Navigator.pushNamed(context, '/add_habit', arguments: {'User':Database().user});
     if (result != null) {
-      Habit habit = database.addHabit(result);
-      database.createHabitCollection(Database().user.uid, habit);
+      Habit habit = Database().addHabit(result);
+      Database().createHabitCollection(Database().user.uid, habit);
     }
     setState(() {});
   }

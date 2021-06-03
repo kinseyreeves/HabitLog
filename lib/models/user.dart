@@ -9,12 +9,19 @@ class User {
   int completed;
   int experience;
   int daysMissed;
+
+  ///List outlining the exp boundaries for each level
   List<int> levelBoundaries;
   int level;
   double percentNextLevel;
   bool shouldCelebrate=false;
+  int daysUsed;
 
-  User(String uid, int completed, int experience, int daysMissed){
+  /// the maximum level achieved by the user
+  int maxLevel;
+
+
+  User(String uid, int completed, int experience, int daysMissed, int daysUsed, int maxLevel){
     this.uid = uid;
     this.completed = completed;
     this.experience = experience;
@@ -22,6 +29,8 @@ class User {
     this.levelBoundaries = calculateLevelBoundaries();
     this.level = getUserLevel();
     this.percentNextLevel = getPercentNextLevel();
+    this.daysUsed = daysUsed;
+    this.maxLevel = maxLevel;
   }
 
   List<int> calculateLevelBoundaries(){
@@ -46,7 +55,6 @@ class User {
     /// Gets the percentage towards the next level
 
     //Should the user celebrate? i.e. did we just level up
-    int levelUpCheck = this.getUserLevel();
 
     if(this.experience==0){
       return 0;
@@ -78,10 +86,11 @@ class User {
     print("\n");
   }
 
+
   bool getShouldCelebrate(){
-    print(this.experience);
-    print(this.level);
-    print(this.levelBoundaries[level]);
+//    print(this.experience);
+//    print(this.level);
+//    print(this.levelBoundaries[level]);
     return true;
   }
 
@@ -98,5 +107,9 @@ class User {
     this.experience+=val;
   }
 
+  @override
+  String toString() {
+    return 'User{uid: $uid, completed: $completed, experience: $experience, daysMissed: $daysMissed, level: $level}';
+  }
 
 }

@@ -12,10 +12,8 @@ import 'package:intl/intl.dart';
 class Database {
 
   /// File for any database work
-  ///
-  ///
-  ///
-  ///
+  /// is a singleton containing the User class and any other static information
+
   static final Database _database = Database._internal();
   bool first = true;
   User user;
@@ -29,7 +27,6 @@ class Database {
   factory Database() {
     return _database;
   }
-
 
   initFirebaseUser(){
     /**
@@ -84,29 +81,27 @@ class Database {
     });
   }
 
-  void setLocalUser(String uid) async {
+  Future setLocalUser(String uid) async {
     /// Gets the user info
     int completed;
     int experience;
     int daysMissed;
     int daysUsed;
+    int maxLevel;
     ///Create a user
     this.setupUserCollection();
     DocumentSnapshot doc = await this.userCollection.document(uid).get();
-//    print("here");
-//    print(uid);
 
     experience = doc['experience'];
     daysMissed = doc['daysMissed'];
     completed = doc['completed'];
     daysUsed = doc['daysUsed'];
-    print("EXP");
-    print(experience);
+    maxLevel = doc['maxLevel'];
+
     //Need to force a single instance of the user
-    if(this.user==null){
-      this.user = User(uid, completed, experience, daysMissed);
-      print(this.user.uid);
-    }
+
+    this.user = User(uid, completed, experience, daysMissed, daysUsed, maxLevel);
+    print("[L] Setting local user " + uid);
   }
 
   User getLocalUser(){
@@ -116,10 +111,6 @@ class Database {
   String getUid(){
     return this.user.uid;
   }
-//
-//  void setUser(User user){
-//    this.user = user;
-//  }
 
   void setupUserCollection(){
     this.userCollection = Firestore.instance.collection("users");
@@ -127,6 +118,7 @@ class Database {
 
   void generateFirebaseUserInfo(String uid){
     /// Instantiates the user in the db
+    /// This only occurs once, when the user is first added
     this.setupUserCollection();
     userCollection.document(uid).setData(
       {
@@ -134,6 +126,7 @@ class Database {
         "experience":0,
         "daysUsed":0,
         "daysMissed": 0,
+        "maxLevel":0
       },
     );
   }
@@ -174,10 +167,7 @@ class Database {
 
   }
 
-
   Database._internal();
-
-
 
   void printDatabaseHabit(){
 
@@ -187,7 +177,6 @@ class Database {
     QuerySnapshot querySnapshot = await this.userCollection.document(uid).collection('habits').getDocuments();
     for (int i = 0; i < querySnapshot.documents.length; i++) {
       var a = querySnapshot.documents[i];
-//      print(a.documentID);
     }
   }
 

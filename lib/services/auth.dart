@@ -17,6 +17,7 @@ class AuthService {
   String firebaseUID;
 
   Future<String> checkUID() async {
+    /// Checks the user UID and returns it as a string
     try {
       final FirebaseUser user = await _firebaseAuth.currentUser();
       this.firebaseUID = user.uid;
@@ -28,10 +29,11 @@ class AuthService {
   }
 
   Future<bool> isLoggedIn() async {
+    /// Checks if the user is logged in
+    /// Returns a bool
     try {
       final FirebaseUser user = await _firebaseAuth.currentUser();
-
-      print(user.uid);
+      print('[L] auth:isLoggedIn ' + user.uid);
       return true;
     } catch (e) {
       print("failed log in");
@@ -40,6 +42,7 @@ class AuthService {
   }
 
   Future<FirebaseUser> getUser() async {
+    /// Gets the firebase user
     try {
       final FirebaseUser user = await _firebaseAuth.currentUser();
       return user;
@@ -48,44 +51,20 @@ class AuthService {
     }
   }
 
-//  void setupDatabase() async{
-//    try {
-//      final FirebaseUser user = await _firebaseAuth.currentUser();
-//
-//    } catch (e) {
-//      print("failed");
-//      return false;
-//    }
-//  }
-//
-//  User userFromFirebaseUser(FirebaseUser user){
-//    //get a user type from the firebase user
-//
-//    if(user!=null){
-//      return Database().getLocalUser();
-//    }
-//    return null;
-//  }
-
-//  Stream<User> get user {
-//    return _firebaseAuth.onAuthStateChanged
-//        .map(userFromFirebaseUser);
-//  }
-
   Future<void> signOut(BuildContext context) async {
 //    Database().databaseDestructor();
     try{
       return await _firebaseAuth.signOut();
-
     }catch(e){
       print(e.toString());
+      print("ERROR SIGNING OUT");
       return null;
     }
   }
 
-  signInGoogle() async{
+  Future signInGoogle() async{
     /**
-     * Signs in with google
+     * Signs in with google, returns a future (isn't used)
      */
     GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
     if (googleSignInAccount != null){
@@ -94,15 +73,16 @@ class AuthService {
       AuthResult result = await _firebaseAuth.signInWithCredential(credential);
       //print("IS NEW USER?");
       FirebaseUser user = await _firebaseAuth.currentUser();
-      print(result.additionalUserInfo.isNewUser);
+//      print(result.additionalUserInfo.isNewUser);
 
       if(result.additionalUserInfo.isNewUser){
         print("NEW USER GOOGLE");
         Database().generateFirebaseUserInfo(user.uid);
       }
+
       await Database().setLocalUser(user.uid);
 
-//      User dbUser = userFromFirebaseUser(user);
+      print("[L] Google sign in with " + user.uid);
       return Database().getLocalUser();
     }
     return null;
@@ -113,17 +93,18 @@ class AuthService {
     Signs in the user anonymously, i.e. not with google
         and user data is kept in firebase
      */
+
     try {
       AuthResult result = await _firebaseAuth.signInAnonymously();
 
       FirebaseUser user = result.user;
 
       if(result.additionalUserInfo.isNewUser){
-        print("IS NEW USER");
         Database().generateFirebaseUserInfo(user.uid);
       }
+      print("[L] Anon sign in with " + user.uid);
 
-      Database().setLocalUser(user.uid);
+      await Database().setLocalUser(user.uid);
 
       return Database().getLocalUser();
 
