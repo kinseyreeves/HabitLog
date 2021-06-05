@@ -102,14 +102,38 @@ class User {
     }
     return 100;
   }
+
+  int getNextLevelBoundary(){
+    ///Gets the next experience boundary
+    return this.levelBoundaries[level];
+  }
+
+  int getPrevLevelBoundary(){
+    ///gets the previous level boundary
+    if(level==0){
+      return 0;
+    }
+    return this.levelBoundaries[level-1];
+  }
   
   void addExperience(int val){
     this.experience+=val;
   }
 
+
   @override
   String toString() {
     return 'User{uid: $uid, completed: $completed, experience: $experience, daysMissed: $daysMissed, level: $level}';
+  }
+
+  int getExperience(){
+    return this.experience;
+  }
+
+  int getMaxLevel(){
+    /// returns the max level achieved by the user
+
+    return this.maxLevel;
   }
 
 }

@@ -76,13 +76,13 @@ class AuthService {
 //      print(result.additionalUserInfo.isNewUser);
 
       if(result.additionalUserInfo.isNewUser){
-        print("NEW USER GOOGLE");
+        print("[L][Auth] NEW USER GOOGLE");
         Database().generateFirebaseUserInfo(user.uid);
       }
 
       await Database().setLocalUser(user.uid);
 
-      print("[L] Google sign in with " + user.uid);
+      print("[L][Auth] Google sign in with " + user.uid);
       return Database().getLocalUser();
     }
     return null;
@@ -102,7 +102,7 @@ class AuthService {
       if(result.additionalUserInfo.isNewUser){
         Database().generateFirebaseUserInfo(user.uid);
       }
-      print("[L] Anon sign in with " + user.uid);
+      print("[L][Auth] Anon sign in with " + user.uid);
 
       await Database().setLocalUser(user.uid);
 

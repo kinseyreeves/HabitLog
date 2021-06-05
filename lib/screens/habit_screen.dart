@@ -132,6 +132,7 @@ class HabitScreenState extends State<HabitScreen> {
       setState(() {
         this.showTodaysHabits = value;
         controllerTopCenter.play();
+        Database().getLocalUser().getNextLevelBoundary();
       });
 
     },);
@@ -187,7 +188,7 @@ class HabitScreenState extends State<HabitScreen> {
      * Generates a card for the list view
      *
      **/
-
+    User user = Database().getLocalUser();
     bool checkboxValue = habit.isCompletedToday();
     bool containsCheckbox = habit.habitRunsToday();
 
@@ -230,11 +231,20 @@ class HabitScreenState extends State<HabitScreen> {
                     }else{
                       habit.completed-=1;
                     }
-                    Database().updateCompletedToday(Database().user.uid, habit, newValue);
+                    int curLevel = user.getUserLevel();
+                    int curExperience = user.getExperience();
 
-                    if(this.shouldCelebrate){
+                    // If the increase surpasses the boundary,
+                    // and our current level is the max ever achieved, then cel
+                    if(curExperience + habit.calculateExperienceIncrease() >
+                        user.getNextLevelBoundary() && curLevel == user.getMaxLevel()){
+
                       controllerTopCenter.play();
                     }
+
+                    Database().updateCompletedToday(user.uid, habit, newValue);
+
+
 
                   });
                   Text('Remember me');

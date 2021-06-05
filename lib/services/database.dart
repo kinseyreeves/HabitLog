@@ -135,11 +135,13 @@ class Database {
     /// Updates the completed state of a habit in the database
     /// uid - user id
     /// Habit habit
-    /// value from the switch / completed or not
+    /// val from the switch -> completed or not
     bool isCompleted = false;
     if(habit.completed >= habit.goal){
       isCompleted = true;
     }
+
+    int level = getLocalUser().getUserLevel();
 
     habit.completedHabitDates[Database().getTodayString()] = val;
     this.userCollection.document(uid).collection('habits').document(habit.hid).updateData({
@@ -161,6 +163,12 @@ class Database {
       this.user.addExperience(-habit.calculateExperienceIncrease().toInt());
       this.userCollection.document(uid).updateData({
       "experience":this.user.experience,
+      });
+    }
+
+    if (level > getLocalUser().maxLevel){
+      this.userCollection.document(uid).updateData({
+        "maxLevel":level,
       });
     }
 
